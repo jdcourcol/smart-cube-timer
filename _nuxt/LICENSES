@@ -265,6 +265,8 @@
 
 /*! ../../mixins/toggleable */
 
+/*! ../../util/helpers */
+
 /*!**************************************!*\
   !*** ./src/components/VBtn/index.ts ***!
   \**************************************/
@@ -362,6 +364,8 @@
 /*! ../../mixins/button-group */
 
 /*! ../../util/helpers */
+
+/*! ../../util/console */
 
 /*!***************************************************!*\
   !*** ./src/components/VCarousel/VCarouselItem.ts ***!
@@ -546,6 +550,8 @@
 /*! exports provided: default */
 
 /*! ../../transitions/expand-transition */
+
+/*! ../../../util/helpers */
 
 /*!**************************************************!*\
   !*** ./src/components/VDataTable/mixins/foot.js ***!
@@ -2502,8 +2508,6 @@
   \*********************************************************/
 
 /*! exports provided: default */
-
-/*! ../../util/helpers */
 
 /*!*********************************************!*\
   !*** ./src/components/transitions/index.js ***!
