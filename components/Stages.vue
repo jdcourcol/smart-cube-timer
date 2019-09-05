@@ -53,6 +53,10 @@
 								<strong :style="{color: 'inherit'}">
 									{{stage.time}}
 								</strong>
+								/
+								<strong :style="{color: 'inherit'}">
+									{{stage.aggTime}}
+								</strong>
 								<small
 									v-if="stage.inspectionTime !== null"
 									class="inspection-time"
@@ -94,12 +98,12 @@
 
 <script>
 import {
-	formatTime,
-	getInspectionTime,
-	getRelativeFaceFromFaces,
-	getRotationNotation,
-	getRotationNotationFromFaces,
-	idealTextColor,
+		formatTime,
+		getInspectionTime,
+		getRelativeFaceFromFaces,
+		getRotationNotation,
+		getRotationNotationFromFaces,
+		idealTextColor,
 } from '~/lib/utils.js';
 import assert from 'assert';
 import config from '~/lib/config.js';
@@ -107,215 +111,215 @@ import get from 'lodash/get';
 import qs from 'querystring';
 
 export default {
-	props: [
-		'replay',
-		'stages',
-		'mode',
-		'time',
-		'cross',
-		'isXcross',
-		'oll',
-		'isOll2Look',
-		'pll',
-		'pllLooks',
-		'cll',
-		'rouxBlock',
-		'scrambleText',
-		'cubeStage',
-	],
-	data() {
-		return {
-		};
-	},
-	computed: {
-		stagesInfo() {
-			return config.stagesData[this.mode || 'cfop'].map(({id, name, color, dark, showInspection}, index, stages) => {
-				const stage = this.stages[id] || {time: null};
-				const previousStage = index === 0 ? null : this.stages[stages[index - 1].id];
-				const previousTime = previousStage ? previousStage.time : null;
-				const deltaTime = (stage.time || this.time) - (previousTime === null ? 0 : previousTime);
+		props: [
+				'replay',
+				'stages',
+				'mode',
+				'time',
+				'cross',
+				'isXcross',
+				'oll',
+				'isOll2Look',
+				'pll',
+				'pllLooks',
+				'cll',
+				'rouxBlock',
+				'scrambleText',
+				'cubeStage',
+		],
+		data() {
+				return {
+				};
+		},
+		computed: {
+				stagesInfo() {
+						return config.stagesData[this.mode || 'cfop'].map(({id, name, color, dark, showInspection}, index, stages) => {
+								const stage = this.stages[id] || {time: null};
+								const previousStage = index === 0 ? null : this.stages[stages[index - 1].id];
+								const previousTime = previousStage ? previousStage.time : null;
+								const deltaTime = (stage.time || this.time) - (previousTime === null ? 0 : previousTime);
 
-				const isStageFinished = stage.time !== null && stage.sequence.length !== 0;
+								const isStageFinished = stage.time !== null && stage.sequence.length !== 0;
 
-				const moveCount = isStageFinished ? stage.sequence.length : null;
-				const speed = isStageFinished ? (moveCount / (deltaTime / 1000)).toFixed(2) : null;
+								const moveCount = isStageFinished ? stage.sequence.length : null;
+								const speed = isStageFinished ? (moveCount / (deltaTime / 1000)).toFixed(2) : null;
+								const aggTime = deltaTime + (previousTime === null ? 0:previousTime)
+								const downFace = (this.mode === 'roux' && previousStage && previousStage.orientation) ? previousStage.orientation.down : this.cross;
+								const {inspection, execution} = (isStageFinished && showInspection)
+											? getInspectionTime({stage, cross: downFace, previousTime})
+											: {inspection: null, execution: null};
 
-				const downFace = (this.mode === 'roux' && previousStage && previousStage.orientation) ? previousStage.orientation.down : this.cross;
-				const {inspection, execution} = (isStageFinished && showInspection)
-					? getInspectionTime({stage, cross: downFace, previousTime})
-					: {inspection: null, execution: null};
+								const infos = [];
+								if (id === 'unknown') {
+										if (this.cross) {
+												infos.push({
+														text: `${config.faceColors[this.cross].name} Cross`,
+														color: config.faceColors[this.cross].color,
+														textColor: idealTextColor(config.faceColors[this.cross].color),
+												});
+										}
 
-				const infos = [];
-				if (id === 'unknown') {
-					if (this.cross) {
-						infos.push({
-							text: `${config.faceColors[this.cross].name} Cross`,
-							color: config.faceColors[this.cross].color,
-							textColor: idealTextColor(config.faceColors[this.cross].color),
-						});
-					}
-
-					if (this.isXcross) {
-						infos.push({
-							text: 'XCross',
-							color: '#4A148C',
-							textColor: idealTextColor('#4A148C'),
-						});
-					}
-				}
-
-				if (id === 'oll') {
-					if (this.oll) {
-						infos.push({
-							text: this.oll.name,
-							color: '#f5f5f5',
-							textColor: idealTextColor('#f5f5f5'),
-						});
-					}
-					if (this.isOll2Look) {
-						infos.push({
-							avatar: '2',
-							text: 'Look',
-							color: 'green',
-							textColor: 'white',
-						});
-					}
-				}
-
-				if (id === 'pll') {
-					if (this.pll) {
-						infos.push({
-							text: this.pll.name,
-							color: '#FFEE58',
-							textColor: idealTextColor('#FFEE58'),
-						});
-					}
-					if (this.pllLooks && this.pllLooks.length > 1) {
-						infos.push({
-							avatar: this.pllLooks.length.toString(),
-							text: 'Look',
-							color: 'green',
-							textColor: 'white',
-						});
-					}
-				}
-
-				if (id === 'cll') {
-					if (this.cll) {
-						infos.push({
-							text: this.cll.name,
-							color: '#FFEE58',
-							textColor: idealTextColor('#FFEE58'),
-						});
-					}
-				}
-
-				let sequenceText = '--';
-
-				if (stage.sequence) {
-					if (stage.sequence.length === 0) {
-						if (stage.time !== null && stage.sequence.length === 0) {
-							sequenceText = '(Skipped)';
-						}
-					} else if (this.cross !== null) {
-						const result = stage.sequence.toText({
-							cross: this.cross,
-							slices: ['M', 'S'],
-						});
-
-						sequenceText = result.text;
-
-						if (stage.orientation !== null) {
-							const [
-								relativeDownFrom,
-								relativeLeftFrom,
-							] = [
-								stage.orientation.down,
-								stage.orientation.left,
-							].map((face) => (
-								getRelativeFaceFromFaces(face, {
-									from: [result.orientation.left, result.orientation.down],
-									to: ['L', 'D'],
-								})
-							));
-
-							const rotationNotation = getRotationNotationFromFaces({
-								from: [relativeLeftFrom, relativeDownFrom],
-								to: ['L', 'D'],
-							});
-
-							if (rotationNotation !== '') {
-								sequenceText += ` ${rotationNotation}`;
-							}
-						}
-
-						if (id === 'unknown') {
-							const preRotationNotation = getRotationNotation({from: this.cross, to: 'D'});
-							if (preRotationNotation !== '') {
-								sequenceText = `${preRotationNotation} ${sequenceText}`;
-							}
-						}
-						// eslint-disable-next-line no-negated-condition
-					} else if (this.rouxBlock !== null) {
-						if (id === 'unknown') {
-							sequenceText = stage.sequence.toString({
-								rouxBlock: {
-									side: stage.orientation.left,
-									bottomDirection: stage.orientation.down,
-								},
-								fixDirection: false,
-							});
-							const rotationNotation = getRotationNotationFromFaces({
-								from: [stage.orientation.left, stage.orientation.down],
-								to: ['L', 'D'],
-							});
-							if (rotationNotation !== '') {
-								sequenceText = `${rotationNotation} ${sequenceText}`;
-							}
-						} else {
-							const result = stage.sequence.toText({
-								rouxBlock: {
-									side: previousStage.orientation.left,
-									bottomDirection: previousStage.orientation.down,
-								},
-								fixDirection: true,
-							});
-
-							sequenceText = result.text;
-
-							if (stage.orientation !== null) {
-								const [
-									relativeDownFrom,
-									relativeLeftFrom,
-									relativeDownTo,
-									relativeLeftTo,
-								] = [
-									result.orientation.down,
-									result.orientation.left,
-									stage.orientation.down,
-									stage.orientation.left,
-								].map((face) => (
-									getRelativeFaceFromFaces(face, {
-										from: [previousStage.orientation.left, previousStage.orientation.down],
-										to: ['L', 'D'],
-									})
-								));
-
-								assert(relativeLeftFrom === 'L');
-								assert(relativeLeftTo === 'L');
-
-								const rotationNotation = getRotationNotationFromFaces({
-									from: ['L', relativeDownFrom],
-									to: ['L', relativeDownTo],
-								});
-
-								if (rotationNotation !== '') {
-									sequenceText += ` ${rotationNotation}`;
+										if (this.isXcross) {
+												infos.push({
+														text: 'XCross',
+														color: '#4A148C',
+														textColor: idealTextColor('#4A148C'),
+												});
+										}
 								}
-							}
-						}
-					} else {
-						sequenceText = stage.sequence.toString();
+
+								if (id === 'oll') {
+										if (this.oll) {
+												infos.push({
+														text: this.oll.name,
+														color: '#f5f5f5',
+														textColor: idealTextColor('#f5f5f5'),
+												});
+										}
+										if (this.isOll2Look) {
+												infos.push({
+														avatar: '2',
+														text: 'Look',
+														color: 'green',
+														textColor: 'white',
+												});
+										}
+								}
+
+								if (id === 'pll') {
+										if (this.pll) {
+												infos.push({
+														text: this.pll.name,
+														color: '#FFEE58',
+														textColor: idealTextColor('#FFEE58'),
+												});
+										}
+										if (this.pllLooks && this.pllLooks.length > 1) {
+												infos.push({
+														avatar: this.pllLooks.length.toString(),
+														text: 'Look',
+														color: 'green',
+														textColor: 'white',
+												});
+										}
+								}
+
+								if (id === 'cll') {
+										if (this.cll) {
+												infos.push({
+														text: this.cll.name,
+														color: '#FFEE58',
+														textColor: idealTextColor('#FFEE58'),
+												});
+										}
+								}
+
+								let sequenceText = '--';
+
+								if (stage.sequence) {
+										if (stage.sequence.length === 0) {
+												if (stage.time !== null && stage.sequence.length === 0) {
+														sequenceText = '(Skipped)';
+												}
+										} else if (this.cross !== null) {
+												const result = stage.sequence.toText({
+														cross: this.cross,
+														slices: ['M', 'S'],
+												});
+
+												sequenceText = result.text;
+
+												if (stage.orientation !== null) {
+														const [
+																relativeDownFrom,
+																relativeLeftFrom,
+														] = [
+																stage.orientation.down,
+																stage.orientation.left,
+														].map((face) => (
+																getRelativeFaceFromFaces(face, {
+																		from: [result.orientation.left, result.orientation.down],
+																		to: ['L', 'D'],
+																})
+														));
+
+														const rotationNotation = getRotationNotationFromFaces({
+																from: [relativeLeftFrom, relativeDownFrom],
+																to: ['L', 'D'],
+														});
+
+														if (rotationNotation !== '') {
+																sequenceText += ` ${rotationNotation}`;
+														}
+												}
+
+												if (id === 'unknown') {
+														const preRotationNotation = getRotationNotation({from: this.cross, to: 'D'});
+														if (preRotationNotation !== '') {
+																sequenceText = `${preRotationNotation} ${sequenceText}`;
+														}
+												}
+												// eslint-disable-next-line no-negated-condition
+										} else if (this.rouxBlock !== null) {
+												if (id === 'unknown') {
+														sequenceText = stage.sequence.toString({
+																rouxBlock: {
+																		side: stage.orientation.left,
+																		bottomDirection: stage.orientation.down,
+																},
+																fixDirection: false,
+														});
+														const rotationNotation = getRotationNotationFromFaces({
+																from: [stage.orientation.left, stage.orientation.down],
+																to: ['L', 'D'],
+														});
+														if (rotationNotation !== '') {
+																sequenceText = `${rotationNotation} ${sequenceText}`;
+														}
+												} else {
+														const result = stage.sequence.toText({
+																rouxBlock: {
+																		side: previousStage.orientation.left,
+																		bottomDirection: previousStage.orientation.down,
+																},
+																fixDirection: true,
+														});
+
+														sequenceText = result.text;
+
+														if (stage.orientation !== null) {
+																const [
+																		relativeDownFrom,
+																		relativeLeftFrom,
+																		relativeDownTo,
+																		relativeLeftTo,
+																] = [
+																		result.orientation.down,
+																		result.orientation.left,
+																		stage.orientation.down,
+																		stage.orientation.left,
+																].map((face) => (
+																		getRelativeFaceFromFaces(face, {
+																				from: [previousStage.orientation.left, previousStage.orientation.down],
+																				to: ['L', 'D'],
+																		})
+																));
+
+																assert(relativeLeftFrom === 'L');
+																assert(relativeLeftTo === 'L');
+
+																const rotationNotation = getRotationNotationFromFaces({
+																		from: ['L', relativeDownFrom],
+																		to: ['L', relativeDownTo],
+																});
+
+																if (rotationNotation !== '') {
+																		sequenceText += ` ${rotationNotation}`;
+																}
+														}
+												}
+										} else {
+												sequenceText = stage.sequence.toString();
 					}
 				}
 
@@ -331,6 +335,7 @@ export default {
 					speed,
 					inspectionTime: inspection && formatTime(inspection),
 					executionTime: execution && formatTime(execution),
+						aggTime: formatTime(isStageFinished || this.cubeStage === id ? aggTime : 0 ),
 				};
 			});
 		},
