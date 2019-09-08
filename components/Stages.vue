@@ -57,6 +57,11 @@
 								<strong :style="{color: 'inherit'}">
 									{{stage.aggTime}}
 								</strong>
+								/
+								<strong :style="{color: 'inherit'}">
+									{{stage.percent}}
+								</strong>
+								%
 								<small
 									v-if="stage.inspectionTime !== null"
 									class="inspection-time"
@@ -336,6 +341,7 @@ export default {
 					inspectionTime: inspection && formatTime(inspection),
 					executionTime: execution && formatTime(execution),
 						aggTime: formatTime(isStageFinished || this.cubeStage === id ? aggTime : 0 ),
+						percent: Number((deltaTime/this.time) * 100).toFixed(2),
 				};
 			});
 		},
