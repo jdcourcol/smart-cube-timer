@@ -4,10 +4,8 @@
 			<v-col>
 				<v-row
 					:align="alignment"
-					:justify="justify"
-					>
-					<v-col
-						cols="12">
+					:justify-content="start">
+					<!-- <v-col class="col-12"> -->
 						<v-btn
 							v-if="!isGiikerConnected"
 							:disabled="isConnecting"
@@ -15,10 +13,19 @@
 							color="success"
 							large
 							@click="onClickConnect"
-							>
+							class="mx-10">
 							Connect Cube
 						</v-btn>
-					</v-col>
+					<!-- </v-col> -->
+					<!-- <v-col class="col-12"> -->
+					<v-btn
+							color="success"
+							large
+						@click="onClickReset"
+						class="mx-10">
+							reset
+					</v-btn>
+					<!-- </v-col> -->
 				</v-row>
 				<v-row
 					v-if="isGiikerConnected">
@@ -34,16 +41,6 @@
 							>
 							{{move.text}}
 						</span>
-					</v-col>
-					<v-col
-						cols="12"
-						>
-						<v-btn
-							color="success"
-							large
-							@click="onClickReset">
-							reset
-						</v-btn>
 					</v-col>
 				</v-row>
 <v-row fill-height grid-list-lg pa-0>
