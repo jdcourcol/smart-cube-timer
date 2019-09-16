@@ -1,36 +1,11 @@
 <template>
 	<v-app>
-		<v-navigation-drawer
-			v-model="drawer"
-			app
-		>
-			<v-list class="pt-0">
-				<v-list-tile
-					to="/"
-					nuxt
-				>
-					<v-list-tile-content>
-						<v-list-tile-title>
-							Home
-						</v-list-tile-title>
-					</v-list-tile-content>
-				</v-list-tile>
-				<v-list-tile to="/faq">
-					<v-list-tile-content>
-						<v-list-tile-title>
-							FAQ
-						</v-list-tile-title>
-					</v-list-tile-content>
-				</v-list-tile>
-			</v-list>
-		</v-navigation-drawer>
 		<v-toolbar
 			dense
 			app
 			dark
 			color="purple"
 		>
-			<v-toolbar-side-icon @click.stop="drawer = !drawer"/>
 			<v-toolbar-title>
 				<nuxt-link
 					to="/"
@@ -51,32 +26,6 @@
 		<v-content>
 			<nuxt/>
 		</v-content>
-		<v-footer
-			:height="40"
-			:style="{lineHeight: '1.2em'}"
-			app
-		>
-			<v-flex
-				text-xs-center
-				xs12
-			>
-				This timer is under development - <a
-					href="https://github.com/hakatashi/smart-cube-timer"
-					target="_blank"
-				>
-					GitHub
-				</a> - <a
-					href="https://twitter.com/hakatashi"
-					target="_blank"
-				>
-					Twitter
-				</a>
-				<br>
-				<strong>
-					NEWS: Details of solve history are available!
-				</strong>
-			</v-flex>
-		</v-footer>
 		<v-bottom-nav
 			:height="50"
 			:value="'solves'"
@@ -118,7 +67,6 @@
 		</v-bottom-nav>
 	</v-app>
 </template>
-
 <script>
 export default {
 	data() {
@@ -171,5 +119,8 @@ a {
 }
 .v-bottom-nav {
 	position: fixed;
+}
+.container {
+max-width: None;
 }
 </style>

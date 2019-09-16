@@ -1,219 +1,222 @@
 <template>
 	<v-container fluid>
-		<v-row
-			:align="alignment"
-      :justify="justify"
-			>
-			<v-col
-				cols="12">
-			<v-btn
-				v-if="!isGiikerConnected"
-				:disabled="isConnecting"
-				:loading="isConnecting"
-				color="success"
-				large
-				@click="onClickConnect"
-				>
-				Connect Cube
-			</v-btn>
-			</v-col>
-		</v-row>
-		<v-row
-			v-if="isGiikerConnected">
-			<v-col
-				v-if="phase === 'scramble'"
-				cols=1
-				>
-				<span
-					v-for="(move, index) in scrambleMoves"
-					:key="index"
-					:style="{color: move.grey ? '#CCC' : ''}"
+		<v-row>
+			<v-col>
+				<v-row
+					:align="alignment"
+					:justify="justify"
 					>
-					{{move.text}}
-				</span>
-			</v-col>
-			<v-col
-				cols=12
-				>
-							<v-btn
+					<v-col
+						cols="12">
+						<v-btn
+							v-if="!isGiikerConnected"
+							:disabled="isConnecting"
+							:loading="isConnecting"
 							color="success"
-								large
-								@click="onClickReset">
-								reset
-							</v-btn>
-						</v-col>
-		</v-row>
-	</v-row>
-	<v-row fill-height grid-list-lg pa-0>
-		<v-layout column fill-height ma-0>
+							large
+							@click="onClickConnect"
+							>
+							Connect Cube
+						</v-btn>
+					</v-col>
+				</v-row>
+				<v-row
+					v-if="isGiikerConnected">
+					<v-col
+						v-if="phase === 'scramble'"
+						cols=12
+						class="scramble"
+						>
+						<span
+							v-for="(move, index) in scrambleMoves"
+							:key="index"
+							:style="{color: move.grey ? '#CCC' : ''}"
+							>
+							{{move.text}}
+						</span>
+					</v-col>
+					<v-col
+						cols="12"
+						>
+						<v-btn
+							color="success"
+							large
+							@click="onClickReset">
+							reset
+						</v-btn>
+					</v-col>
+				</v-row>
+<v-row fill-height grid-list-lg pa-0>
+	<v-col fill-height >
 		<v-flex class="breakdown">
-				<span class="timer">
+			<span class="timer">
+				<v-btn
+					v-if="phase === 'scramble' && previousSolve !== null"
+					icon
+					flat
+					disabled
+					class="ma-0"
+					/>
+				{{displayTime}}
+				<v-dialog
+					v-if="phase === 'scramble' && previousSolve !== null"
+					v-model="isDeleteDialogOpen"
+					>
 					<v-btn
-						v-if="phase === 'scramble' && previousSolve !== null"
+						slot="activator"
 						icon
 						flat
-						disabled
+						color="red lighten-2"
 						class="ma-0"
-					/>
-					{{displayTime}}
-					<v-dialog
-						v-if="phase === 'scramble' && previousSolve !== null"
-						v-model="isDeleteDialogOpen"
-					>
-						<v-btn
-							slot="activator"
-							icon
-							flat
-							color="red lighten-2"
-							class="ma-0"
 						>
-							<v-icon dark>delete</v-icon>
-						</v-btn>
-						<v-card>
-							<v-card-text>
-								Delete solve?
-							</v-card-text>
-							<v-divider/>
-							<v-card-actions>
-								<v-spacer/>
-								<v-btn
-									color="primary"
-									flat
-									@click="isDeleteDialogOpen = false"
+						<v-icon dark>delete</v-icon>
+					</v-btn>
+					<v-card>
+						<v-card-text>
+							Delete solve?
+						</v-card-text>
+						<v-divider/>
+						<v-card-actions>
+							<v-spacer/>
+							<v-btn
+								color="primary"
+								flat
+								@click="isDeleteDialogOpen = false"
 								>
-									Cancel
-								</v-btn>
-								<v-btn
-									color="red lighten-1"
-									flat
-									@click="onClickDelete"
+								Cancel
+							</v-btn>
+							<v-btn
+								color="red lighten-1"
+								flat
+								@click="onClickDelete"
 								>
-									Delete
-								</v-btn>
-							</v-card-actions>
-						</v-card>
-					</v-dialog>
+								Delete
+							</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</span>
+			<scary-cube></scary-cube>
+			<div
+				v-if="phase === 'solve'"
+				class="timer-controls"
+				>
+				<v-btn
+					flat
+					small
+					color="error"
+					class="ma-0"
+					@click="onClickReset"
+					>
+					Reset
+				</v-btn>
+			</div>
+			<div
+				v-if="phase === 'scramble' && !isFirstSolve"
+				class="solve-infos"
+				>
+				<span class="solve-info subheading">
+					{{moveCount}} turns
 				</span>
-				<scary-cube></scary-cube>
-				<div
-					v-if="phase === 'solve'"
-					class="timer-controls"
-				>
-					<v-btn
-						flat
-						small
-						color="error"
-						class="ma-0"
-						@click="onClickReset"
+				<span class="solve-info subheading">
+					{{speed}} tps
+				</span>
+			</div>
+		</v-flex>
+	</v-col>
+	<v-dialog v-model="isDialogOpen" max-width="400">
+		<v-card>
+			<v-card-title class="headline">Your browser is not supported</v-card-title>
+			<v-card-text>
+				It seems your browser doesn't support Web Bluetooth API.
+				So this timer cannot communicate with GiiKER and totally not works.
+			</v-card-text>
+			<v-card-text v-if="platform.startsWith('Win')">
+				I guess you are using <strong>Windows</strong>.
+				You can try Chrome Dev with new Bluetooth implementation but it's very beta.
+				If you are so smart to try out beta, follow <a
+																											target="_blank"
+																											href="https://github.com/hakatashi/smart-cube-timer/wiki/Windows-Guide"
+																											>
+					this instruction
+				</a> at your own risk.
+			</v-card-text>
+			<v-card-text v-if="platform.startsWith('iP')">
+				I guess you are using <strong>{{platform}}</strong>.
+				Some people says that this timer works with <a
+																											target="_blank"
+																											href="https://itunes.apple.com/us/app/webble/id1193531073"
+																											>
+					WebBLE browser
+				</a> ($1.99) but I don't guarantee.
+				Try at your own risk.
+			</v-card-text>
+			<v-card-text v-if="platform.startsWith('Mac')">
+				I guess you are using <strong>Mac</strong>.
+				Download <a
+									 target="_blank"
+									 href="https://www.google.com/chrome/"
+									 >
+					latest Google Chrome
+				</a> and it should help.
+			</v-card-text>
+			<v-card-text v-if="platform.startsWith('Android') || platform.match(/linux/i)">
+				I guess you are using <strong>Android</strong>.
+				Download <a
+									 target="_blank"
+									 href="https://play.google.com/store/apps/details?id=com.android.chrome"
+									 >
+					latest Google Chrome
+				</a> and it should help.
+			</v-card-text>
+			<v-card-actions>
+				<v-spacer/>
+				<v-btn
+					color="green darken-1"
+					flat
+					@click="isDialogOpen = false"
 					>
-						Reset
-					</v-btn>
-				</div>
-				<div
-					v-if="phase === 'scramble' && !isFirstSolve"
-					class="solve-infos"
-				>
-					<span class="solve-info subheading">
-						{{moveCount}} turns
-					</span>
-					<span class="solve-info subheading">
-						{{speed}} tps
-					</span>
-				</div>
-			</v-flex>
-		</v-layout>
-		<v-dialog v-model="isDialogOpen" max-width="400">
-			<v-card>
-				<v-card-title class="headline">Your browser is not supported</v-card-title>
-				<v-card-text>
-					It seems your browser doesn't support Web Bluetooth API.
-					So this timer cannot communicate with GiiKER and totally not works.
-				</v-card-text>
-				<v-card-text v-if="platform.startsWith('Win')">
-					I guess you are using <strong>Windows</strong>.
-					You can try Chrome Dev with new Bluetooth implementation but it's very beta.
-					If you are so smart to try out beta, follow <a
-						target="_blank"
-						href="https://github.com/hakatashi/smart-cube-timer/wiki/Windows-Guide"
-					>
-						this instruction
-					</a> at your own risk.
-				</v-card-text>
-				<v-card-text v-if="platform.startsWith('iP')">
-					I guess you are using <strong>{{platform}}</strong>.
-					Some people says that this timer works with <a
-						target="_blank"
-						href="https://itunes.apple.com/us/app/webble/id1193531073"
-					>
-						WebBLE browser
-					</a> ($1.99) but I don't guarantee.
-					Try at your own risk.
-				</v-card-text>
-				<v-card-text v-if="platform.startsWith('Mac')">
-					I guess you are using <strong>Mac</strong>.
-					Download <a
-						target="_blank"
-						href="https://www.google.com/chrome/"
-					>
-						latest Google Chrome
-					</a> and it should help.
-				</v-card-text>
-				<v-card-text v-if="platform.startsWith('Android') || platform.match(/linux/i)">
-					I guess you are using <strong>Android</strong>.
-					Download <a
-						target="_blank"
-						href="https://play.google.com/store/apps/details?id=com.android.chrome"
-					>
-						latest Google Chrome
-					</a> and it should help.
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer/>
-					<v-btn
-						color="green darken-1"
-						flat
-						@click="isDialogOpen = false"
-					>
-						Close
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-		<v-snackbar
-			v-model="isSnackbarShown"
-			:timeout="5000"
-			color="error"
-			bottom
-			multi-line
+					Close
+				</v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
+	<v-snackbar
+		v-model="isSnackbarShown"
+		:timeout="5000"
+		color="error"
+		bottom
+		multi-line
 		>
-			{{snackbar}}
-			<v-btn
-				flat
-				@click="isSnackbarShown = false"
+		{{snackbar}}
+		<v-btn
+			flat
+			@click="isSnackbarShown = false"
 			>
-				Close
-			</v-btn>
-		</v-snackbar>
-</v-column>
-<v-column>
-				<v-flex id="stages" class="breakdown times">
-				<stages
-					:replay="false"
-					:stages="analyzerState.stages"
-					:mode="analyzerState.mode || 'cfop'"
-					:time="time"
-					:cross="analyzerState.cross"
-					:is-xcross="isXcross"
-					:oll="analyzerState.oll"
-					:is-oll2look="analyzerState.isOll2Look"
-					:pll="analyzerState.pll"
-					:pll-looks="analyzerState.pllLooks"
-					:roux-block="analyzerState.rouxBlock"
-					:cll="analyzerState.cll"
-					:cube-stage="analyzerState.cubeStage"
-				/>
-			</v-flex>
-</v-column>
+			Close
+		</v-btn>
+	</v-snackbar>
+</v-row>
+</v-col>
+<v-col >
+	<v-flex id="stages" class="breakdown times">
+		<stages
+			:replay="false"
+			:stages="analyzerState.stages"
+			:mode="analyzerState.mode || 'cfop'"
+			:time="time"
+			:cross="analyzerState.cross"
+			:is-xcross="isXcross"
+			:oll="analyzerState.oll"
+			:is-oll2look="analyzerState.isOll2Look"
+			:pll="analyzerState.pll"
+			:pll-looks="analyzerState.pllLooks"
+			:roux-block="analyzerState.rouxBlock"
+			:cll="analyzerState.cll"
+			:cube-stage="analyzerState.cubeStage"
+			/>
+	</v-flex>
+</v-col>
 </v-row>
 </v-container>
 </template>
@@ -336,8 +339,7 @@ export default {
 				}
 		},
 		mounted() {
-				// const scramble = sample(scrambles.sheets[0].scrambles);
-				const scramble = 'B';
+				const scramble = sample(scrambles.sheets[0].scrambles);
 				this.scramble = MoveSequence.fromScramble(scramble, {mode: 'reduction'});
 				this.initialScramble = MoveSequence.fromScramble(scramble, {mode: 'reduction'});
 				this.placeholderMoves = this.scramble.moves.map((move) => ({...move}));
@@ -516,13 +518,11 @@ export default {
 		justify-content: flex-end;
 }
 		.scramble {
-				max-width: 110vmin;
-				font-size: 5vmin;
-				font-weight: bold;
-				line-height: 1.2em;
-				margin: 0 auto;
-				display:flex;
-				flex-wrap:wrap;
+			max-width: 110vmin;
+			font-size: 5vmin;
+			font-weight: bold;
+			line-height: 1.2em;
+			margin: 0 auto;
 		}
 
 .breakdown {
@@ -552,6 +552,6 @@ export default {
 }
 scary-cube {
     width: 100%;
-    height: 200px;
+    height: 400px;
 }
 </style>

@@ -9,22 +9,26 @@
 			Replay on alg.cubing.net
 		</v-btn>
 		<v-layout wrap>
-			<v-flex
+			<v-row
 				v-for="stage in stagesInfo"
 				:id="stage.id"
 				:key="stage.id"
 				xs12
 				lg4
 				xl3
-			>
+				:style="{width: '100%'}">
+				<v-col
+>
 				<v-card
 					:dark="stage.dark"
 					:color="stage.color"
 					:class="stage.class"
+
 				>
-					<v-card-title>
-						<div :style="{width: '100%'}">
-							<h2 class="display-1 font-weight-bold text-xs-left">
+					<div :style="{width: '100%'}">
+							<v-row class="stage-info  ma-0">
+								<v-col>
+							<h4 class=" font-weight-bold text-xs-left">
 								{{stage.name}}
 								<v-chip
 									v-for="info in stage.infos"
@@ -48,8 +52,9 @@
 									</v-avatar>
 									{{info.text}}
 								</v-chip>
-							</h2>
-							<v-layout class="stage-info headline ma-0">
+							</h4>
+								</v-col>
+								<v-col>
 								<strong :style="{color: 'inherit'}">
 									{{stage.time}}
 								</strong>
@@ -77,26 +82,27 @@
 									</span>
 								</small>
 								<v-spacer/>
-								<div
+								<span
 									v-if="stage.moveCount !== null"
 									class="subheading stage-info-right"
 								>
 									{{stage.moveCount}} turns
-								</div>
-								<div
+								</span>
+								<span
 									v-if="stage.speed !== null"
 									class="subheading stage-info-right"
 								>
 									{{stage.speed}} tps
-								</div>
-							</v-layout>
+								</span>
+								</v-col>
+							</v-row>
 							<div class="content text-xs-left">
 								{{stage.sequenceText}}
 							</div>
 						</div>
-					</v-card-title>
 				</v-card>
-			</v-flex>
+				</v-col>
+			</v-row>
 		</v-layout>
 	</div>
 </template>
@@ -179,6 +185,7 @@ export default {
 														text: this.oll.name,
 														color: '#f5f5f5',
 														textColor: idealTextColor('#f5f5f5'),
+														class: 'olljdc',
 												});
 										}
 										if (this.isOll2Look) {
@@ -390,10 +397,13 @@ export default {
 		position: relative;
 		align-self: flex-end;
 	}
-
 	.time-spacer {
 		width: 0.8em;
 		text-align: center;
 		align-self: flex-end;
 	}
+	.timecard {
+			padding: None;
+			}
+
 </style>
