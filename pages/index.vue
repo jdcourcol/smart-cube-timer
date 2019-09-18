@@ -5,7 +5,6 @@
 				<v-row
 					:align="alignment"
 					:justify-content="start">
-					<!-- <v-col class="col-12"> -->
 						<v-btn
 							v-if="!isGiikerConnected"
 							:disabled="isConnecting"
@@ -16,8 +15,15 @@
 							class="mx-10">
 							Connect Cube
 						</v-btn>
-					<!-- </v-col> -->
-					<!-- <v-col class="col-12"> -->
+						<v-btn
+							v-if="isGiikerConnected"
+							color="error"
+							large
+							@click="onClickDisconnect"
+							class="mx-10">
+							Disconnect Cube
+						</v-btn>
+
 					<v-btn
 							color="success"
 							large
@@ -25,7 +31,6 @@
 						class="mx-10">
 							reset
 					</v-btn>
-					<!-- </v-col> -->
 				</v-row>
 				<v-row
 					v-if="isGiikerConnected">
@@ -270,6 +275,8 @@ export default {
 						if (this.scramble === null) {
 								return [];
 						}
+						// let c=document.querySelector('scary-cube');
+						// // c.setOrientation(150,75);
 
 						assert(this.placeholderMoves.length >= this.scramble.moves.length);
 
@@ -333,6 +340,7 @@ export default {
 								this.phase = 'prescramble';
 						}
 						GiiKER.on('move', this.onGiikerMove);
+						GiiKER.on('reset-complete', this.onGiikerResetComplete);
 				}
 		},
 		mounted() {
@@ -357,18 +365,6 @@ export default {
 				}
 		},
 		methods: {
-				onJDC(){
-						console.log('jdc');
-						// document.querySelector('scary-cube').addMove('R');
-						// console.log(document.querySelector('scary-cube'));
-						// debugger;i
-						let c= document.querySelector('scary-cube');
-						c._setFaces(c._facesFromString("UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB"));
-				},
-				onRotate(){
-						console.log('rotate');
-						// GiiKER.cube.setOrientation(-180,0);
-				},
 				onClickConnect() {
 						if (this.isConnecting) {
 								return;
@@ -383,6 +379,8 @@ export default {
 						GiiKER.connect().then(() => {
 								this.isGiikerConnected = true;
 								GiiKER.on('move', this.onGiikerMove);
+								GiiKER.on('reset-complete', this.onGiikerResetComplete);
+								let gii = GiiKER._giiker;
 								this.phase = 'scramble';
 						}, (error) => {
 								this.isSnackbarShown = true;
@@ -394,6 +392,12 @@ export default {
 						scrambo.initialize(Math);
 						// eslint-disable-next-line no-console
 						console.timeEnd('scrambo.initialize took');
+				},
+				onClickDisconnect(){
+						let gii = GiiKER._giiker;
+						gii.disconnect();
+						this.isGiikerConnected = false;
+						this.isConnecting = false;
 				},
 				onGiikerMove(move) {
 						const now = new Date();
@@ -407,8 +411,6 @@ export default {
 						c._setFaces(c._facesFromString(GiiKER.cube.asString()));
 
 						if (this.phase === 'scramble') {
-								let c=document.querySelector('scary-cube');
-								c.setOrientation(150,75);
 								this.scramble.unshift({
 										face: move.face,
 										amount: -move.amount,
@@ -467,11 +469,14 @@ export default {
 						}
 				},
 				onClickReset() {
-						this.finishSolve({isError: true});
-						GiiKER.cube.identity();
-						let c = document.querySelector('scary-cube');
-						c._setFaces(c._facesFromString(GiiKER.cube.asString()));
-		},
+						let gii = GiiKER._giiker;
+						gii.resetState();
+				},
+				onGiikerResetComplete(){
+						let gii = GiiKER._giiker;
+						let c=document.querySelector('scary-cube');
+						c._setFaces(c._facesFromString(gii.stateString));
+						},
 		async finishSolve({isError}) {
 			clearInterval(this.interval);
 
