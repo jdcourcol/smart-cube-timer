@@ -60,25 +60,25 @@
 								</strong>
 								/
 								<strong :style="{color: 'inherit'}">
-									{{stage.aggTime}}
-								</strong>
-								/
-								<strong :style="{color: 'inherit'}">
 									{{stage.percent}}
 								</strong>
-								%
+								%/
+								<strong :style="{color: 'inherit'}">
+								total:	{{stage.aggTime}}
+								</strong>
+
 								<small
 									v-if="stage.inspectionTime !== null"
 									class="inspection-time"
 								>
 									<span class="time-info">
-										{{stage.inspectionTime}}
+									inspect:	{{stage.inspectionTime}}
 									</span>
 									<span class="time-spacer">
 										/
 									</span>
 									<span class="time-info">
-										{{stage.executionTime}}
+									execute:	{{stage.executionTime}}
 									</span>
 								</small>
 								<v-spacer/>
@@ -96,7 +96,7 @@
 								</span>
 								</v-col>
 							</v-row>
-							<div class="content text-xs-left">
+							<div class="sequence content text-xs-left">
 								{{stage.sequenceText}}
 							</div>
 						</div>
@@ -405,5 +405,7 @@ export default {
 	.timecard {
 			padding: None;
 			}
-
+	.sequence {
+			margin-left: 15px;
+	}
 </style>

@@ -21,7 +21,7 @@
 							large
 							@click="onClickDisconnect"
 							class="mx-10">
-							Disconnect Cube
+							Disconnect Cube [{{ battery }}%]
 						</v-btn>
 
 					<v-btn
@@ -268,6 +268,7 @@ export default {
 						isFirstSolve: true,
 						isDialogOpen: false,
 						isDeleteDialogOpen: false,
+						battery: '?',
 				};
 		},
 		computed: {
@@ -382,6 +383,9 @@ export default {
 								GiiKER.on('reset-complete', this.onGiikerResetComplete);
 								let gii = GiiKER._giiker;
 								this.phase = 'scramble';
+								GiiKER._giiker.getBatteryLevel().then((a)=>{this.battery=a;
+								});
+
 						}, (error) => {
 								this.isSnackbarShown = true;
 								this.snackbar = error.message;
@@ -476,6 +480,7 @@ export default {
 						let gii = GiiKER._giiker;
 						let c=document.querySelector('scary-cube');
 						c._setFaces(c._facesFromString(gii.stateString));
+						GiiKER.cube.identity();
 						},
 		async finishSolve({isError}) {
 			clearInterval(this.interval);
