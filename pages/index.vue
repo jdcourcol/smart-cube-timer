@@ -2,9 +2,8 @@
 	<v-container fluid>
 		<v-row>
 			<v-col>
-				<v-row
-					:align="alignment"
-					:justify-content="start">
+				<v-row>
+
 						<v-btn
 							v-if="!isGiikerConnected"
 							:disabled="isConnecting"
@@ -384,7 +383,7 @@ export default {
 								let gii = GiiKER._giiker;
 								this.phase = 'scramble';
 								GiiKER._giiker.getBatteryLevel().then((a)=>{this.battery=a;
-								});
+																													 });
 
 						}, (error) => {
 								this.isSnackbarShown = true;
@@ -414,6 +413,10 @@ export default {
 						let c = document.querySelector('scary-cube');
 						c._setFaces(c._facesFromString(GiiKER.cube.asString()));
 
+						if (GiiKER.cube.asString() !== GiiKER._giiker.stateString){
+								console.log(GiiKER.cube.asString());
+								console.log(GiiKER._giiker.stateString);
+						}
 						if (this.phase === 'scramble') {
 								this.scramble.unshift({
 										face: move.face,

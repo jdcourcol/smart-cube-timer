@@ -36,7 +36,7 @@
 		>
 			<v-btn
 				color="white"
-				flat
+				text
 				value="timer"
 				class="pa-0"
 				to="/"
@@ -46,7 +46,7 @@
 			</v-btn>
 			<v-btn
 				color="white"
-				flat
+				text
 				value="solves"
 				class="pa-0"
 				to="/solves"
@@ -56,7 +56,7 @@
 			</v-btn>
 			<v-btn
 				color="white"
-				flat
+				text
 				value="stats"
 				class="pa-0"
 				to="/stats"
