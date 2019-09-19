@@ -2,7 +2,6 @@
 	<v-app>
 		<v-toolbar
 			dense
-			app
 			dark
 			color="purple"
 		>
@@ -26,7 +25,7 @@
 		<v-content>
 			<nuxt/>
 		</v-content>
-		<v-bottom-nav
+		<v-bottom-navigation
 			:height="50"
 			:value="'solves'"
 			app
@@ -64,7 +63,7 @@
 			>
 				<v-icon>bar_chart</v-icon>
 			</v-btn>
-		</v-bottom-nav>
+		</v-bottom-navigation>
 	</v-app>
 </template>
 <script>
