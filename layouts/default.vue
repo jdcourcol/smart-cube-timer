@@ -31,7 +31,7 @@
 			app
 			active="recent"
 			absolute
-			color="purple darken-2"
+			background-color="purple darken-2"
 		>
 			<v-btn
 				color="white"
