@@ -410,13 +410,13 @@ export default {
 								}
 								return;
 						}
+
+
+						GiiKER.cube.fromString=GiiKER.cube.asString();
+
 						let c = document.querySelector('scary-cube');
 						c._setFaces(c._facesFromString(GiiKER.cube.asString()));
 
-						if (GiiKER.cube.asString() !== GiiKER._giiker.stateString){
-								console.log(GiiKER.cube.asString());
-								console.log(GiiKER._giiker.stateString);
-						}
 						if (this.phase === 'scramble') {
 								this.scramble.unshift({
 										face: move.face,
