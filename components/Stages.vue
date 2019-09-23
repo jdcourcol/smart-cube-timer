@@ -159,7 +159,9 @@ export default {
 								const {inspection, execution} = (isStageFinished && showInspection)
 											? getInspectionTime({stage, cross: downFace, previousTime})
 											: {inspection: null, execution: null};
-
+								stage.executionTime = execution;
+								stage.inspectionTime = inspection;
+								stage.moveCount = moveCount;
 								const infos = [];
 								if (id === 'unknown') {
 										if (this.cross) {

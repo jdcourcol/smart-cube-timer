@@ -412,7 +412,7 @@ export default {
 						}
 
 
-						GiiKER.cube.fromString=GiiKER.cube.asString();
+						GiiKER.cube.fromString=GiiKER._giiker.stateString;
 
 						let c = document.querySelector('scary-cube');
 						c._setFaces(c._facesFromString(GiiKER.cube.asString()));
