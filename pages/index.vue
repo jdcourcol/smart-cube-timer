@@ -224,7 +224,7 @@
 <script>
 import '~/lib/scary.js'
 import {deleteSolve, saveSolve} from '~/lib/db.js';
-import {formatTime, getNotation} from '~/lib/utils.js';
+import {formatTime, getNotation, updateStages} from '~/lib/utils.js';
 import GiiKER from '~/lib/giiker.js';
 import MoveSequence from '~/lib/MoveSequence.js';
 import NoSleep  from 'nosleep.js';
@@ -234,6 +234,8 @@ import assert from 'assert';
 import sample from 'lodash/sample';
 import scrambles from '~/lib/scrambles.json';
 import scrambo from 'scrambo/lib/scramblers/333';
+import config from '~/lib/config.js';
+
 export default {
 		components: {
 				Stages,
@@ -384,6 +386,10 @@ export default {
 								this.phase = 'scramble';
 								GiiKER._giiker.getBatteryLevel().then((a)=>{this.battery=a;
 																													 });
+								GiiKER.cube.fromString=GiiKER._giiker.stateString;
+								let c = document.querySelector('scary-cube');
+								c._setFaces(c._facesFromString(GiiKER.cube.asString()));
+
 
 						}, (error) => {
 								this.isSnackbarShown = true;
@@ -456,8 +462,15 @@ export default {
 						if (this.phase === 'solve') {
 								this.time = now.getTime() - this.startTime.getTime();
 								this.analyzer.pushMoves([{time: this.time, ...move}]);
-
+								console.log(config);
 								if (GiiKER.cube.isSolved()) {
+										console.log('solved');
+										updateStages({stages:this.analyzer.state.stages,
+																	mode: this.analyzer.state.mode,
+																	stagesData:config.stagesData,
+																	cross: this.analyzerState.cross,
+																 time: this.time});
+										this.time = now.getTime() - this.startTime.getTime();
 										this.finishSolve({isError: false});
 										let c=document.querySelector('scary-cube');
 										c.setOrientation(150,75);

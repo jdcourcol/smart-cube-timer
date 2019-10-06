@@ -156,11 +156,14 @@ export default {
 								const speed = isStageFinished ? (moveCount / (deltaTime / 1000)).toFixed(2) : null;
 								const aggTime = deltaTime + (previousTime === null ? 0:previousTime)
 								const downFace = (this.mode === 'roux' && previousStage && previousStage.orientation) ? previousStage.orientation.down : this.cross;
-								const {inspection, execution} = (isStageFinished && showInspection)
-											? getInspectionTime({stage, cross: downFace, previousTime})
-											: {inspection: null, execution: null};
-								stage.executionTime = execution;
-								stage.inspectionTime = inspection;
+
+								const {inspection, execution} = (this.stages[id] && stage.sequence.length) ? getInspectionTime({stage, cross: downFace, previousTime}): {inspection: null, execution:null};
+								if (execution > 0){
+										stage.executionTime = execution;
+								}
+								if (inspection >0){
+										stage.inspectionTime = inspection;
+										}
 								stage.moveCount = moveCount;
 								const infos = [];
 								if (id === 'unknown') {
