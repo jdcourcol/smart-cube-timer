@@ -29,7 +29,6 @@
 			:height="50"
 			:value="'solves'"
 			app
-			active="recent"
 			absolute
 			background-color="purple darken-2"
 		>

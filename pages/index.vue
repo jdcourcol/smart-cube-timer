@@ -462,9 +462,7 @@ export default {
 						if (this.phase === 'solve') {
 								this.time = now.getTime() - this.startTime.getTime();
 								this.analyzer.pushMoves([{time: this.time, ...move}]);
-								console.log(config);
 								if (GiiKER.cube.isSolved()) {
-										console.log('solved');
 										updateStages({stages:this.analyzer.state.stages,
 																	mode: this.analyzer.state.mode,
 																	stagesData:config.stagesData,
